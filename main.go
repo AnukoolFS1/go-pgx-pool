@@ -29,19 +29,19 @@ func main() {
 
 	bookRepo := repository.NewBookRepository(db)
 
-	bookID, err := bookRepo.CreateBook(
-		ctx,
-		"The Go Programming Language",
-		"Alan Donovan",
-		799.00,
-		10,
-	)
+	// bookID, err := bookRepo.CreateBook(
+	// 	ctx,
+	// 	"The Go Programming Language",
+	// 	"Alan Donovan",
+	// 	799.00,
+	// 	10,
+	// )
 
-	if err != nil {
-		log.Fatal(err)
-	}
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
 
-	fmt.Println("Inserted book with ID:", bookID)
+	// fmt.Println("Inserted book with ID:", bookID)
 
 	book, err := bookRepo.GetBook(ctx, 6)
 
@@ -55,36 +55,22 @@ func main() {
 	fmt.Println(book.Price)
 	fmt.Println(book.Stock)
 
-	// row, err := db.Query(ctx, "SELECT id, title, author, price, stock FROM books;")
+	books, err := bookRepo.GetBooks(ctx)
 
-	// fmt.Println("q", row.FieldDescriptions())
+	if err != nil {
+		log.Fatal(err)
+	}
 
-	// for row.Next() {
-
-	// 	fmt.Println(row.Values())
-
-	// 	var (
-	// 		id     int
-	// 		title  string
-	// 		author string
-	// 		price  float32
-	// 		stock  int
-	// 	)
-
-	// 	err := row.Scan(&id, &title, &author, &price, &stock)
-
-	// 	if err != nil {
-	// 		log.Fatal(err)
-	// 	}
-
-	// 	fmt.Printf("id: %v, title: %v, author: %v, price: %v, stock: %v \n", id, title, author, price, stock)
-	// }
-
-	// if err := row.Err(); err != nil {
-	// 	log.Fatal(err)
-	// }
-
-	// defer row.Close()
+	for _, book := range books {
+		fmt.Printf(
+			"id: %d, title: %s, author: %s, price: %.2f, stock: %d\n",
+			book.ID,
+			book.Title,
+			book.Author,
+			book.Price,
+			book.Stock,
+		)
+	}
 
 }
 

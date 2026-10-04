@@ -11,11 +11,11 @@ type BookRepository struct {
 }
 
 type Book struct {
-    ID     int
-    Title  string
-    Author string
-    Price  float32
-    Stock  int
+	ID     int
+	Title  string
+	Author string
+	Price  float32
+	Stock  int
 }
 
 func NewBookRepository(db *pgxpool.Pool) *BookRepository {
@@ -53,25 +53,83 @@ func (r *BookRepository) CreateBook(
 }
 
 func (r *BookRepository) GetBook(ctx context.Context, id int) (Book, error) {
-    var book Book
+	var book Book
 
-    err := r.db.QueryRow(
-        ctx,
-        `SELECT id, title, author, price, stock
+	err := r.db.QueryRow(
+		ctx,
+		`SELECT id, title, author, price, stock
          FROM books
          WHERE id = $1`,
-        id,
-    ).Scan(
-        &book.ID,
-        &book.Title,
-        &book.Author,
-        &book.Price,
-        &book.Stock,
-    )
+		id,
+	).Scan(
+		&book.ID,
+		&book.Title,
+		&book.Author,
+		&book.Price,
+		&book.Stock,
+	)
 
-    if err != nil {
-        return Book{}, err
-    }
+	if err != nil {
+		return Book{}, err
+	}
 
-    return book, nil
+	return book, nil
+}
+
+func (r *BookRepository) GetBooks(ctx context.Context) ([]Book, error) {
+	rows, err := r.db.Query(
+		ctx,
+		`SELECT id, title, author, price, stock
+         FROM books`,
+	)
+
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	var books []Book
+
+	var book Book
+
+	// rows.Next()
+
+	err = rows.Scan(
+		&book.ID,
+		&book.Title,
+		&book.Author,
+		&book.Price,
+		&book.Stock,
+	)
+
+	if err != nil {
+		return nil, err
+	}
+
+	books = append(books, book)
+
+	// for rows.Next() {
+	//     var book Book
+
+	//     err := rows.Scan(
+	//         &book.ID,
+	//         &book.Title,
+	//         &book.Author,
+	//         &book.Price,
+	//         &book.Stock,
+	//     )
+
+	//     if err != nil {
+	//         return nil, err
+	//     }
+
+	//     books = append(books, book)
+	// }
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return books, nil
 }
